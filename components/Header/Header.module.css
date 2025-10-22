@@ -2,26 +2,36 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #2b2b2b;
-  color: white;
   padding: 1rem 2rem;
+  background-color: #333;
+  color: white;
 }
 
-.logo {
+.header a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.5rem;
   font-weight: bold;
-  font-size: 1.3rem;
+}
+
+.header a:hover {
+  color: #ddd;
 }
 
 .navigation {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   gap: 1rem;
 }
 
-.navigation a {
+.navigation li a {
+  text-decoration: none;
   color: white;
-  transition: opacity 0.3s;
+  font-size: 1rem;
 }
 
-.navigation a:hover {
-  opacity: 0.8;
+.navigation li a:hover {
+  color: #ddd;
 }
