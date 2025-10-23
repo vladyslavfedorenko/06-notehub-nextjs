@@ -1,13 +1,17 @@
 import axios from "axios";
 import { Note } from "@/types/note";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
 export interface NotesResponse {
   notes: Note[];
   totalPages: number;
 }
+
+// ✅ создаём axios-инстанс без baseURL, чтобы использовать относительные пути
+const api = axios.create({
+  baseURL: "/api", // теперь запросы идут на тот же домен (через Next.js API routes)
+});
 
 /**
  * Получение списка заметок с пагинацией и поиском
@@ -19,11 +23,10 @@ export const fetchNotes = async ({
   page?: number;
   q?: string;
 }): Promise<NotesResponse> => {
-  // ✅ Передаем q только если он непустой
   const params: Record<string, string | number> = { page };
   if (q && q.trim() !== "") params.q = q.trim();
 
-  const res = await axios.get<NotesResponse>(`${BASE_URL}/notes`, {
+  const res = await api.get<NotesResponse>("/notes", {
     headers: { Authorization: `Bearer ${TOKEN}` },
     params,
   });
@@ -35,7 +38,7 @@ export const fetchNotes = async ({
  * Получение одной заметки по id
  */
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const res = await axios.get<Note>(`${BASE_URL}/notes/${id}`, {
+  const res = await api.get<Note>(`/notes/${id}`, {
     headers: { Authorization: `Bearer ${TOKEN}` },
   });
   return res.data;
@@ -47,7 +50,7 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
 export const createNote = async (
   note: Pick<Note, "title" | "content" | "tag">
 ): Promise<Note> => {
-  const res = await axios.post<Note>(`${BASE_URL}/notes`, note, {
+  const res = await api.post<Note>("/notes", note, {
     headers: { Authorization: `Bearer ${TOKEN}` },
   });
   return res.data;
@@ -57,7 +60,7 @@ export const createNote = async (
  * Удаление заметки
  */
 export const deleteNote = async (id: string): Promise<void> => {
-  await axios.delete(`${BASE_URL}/notes/${id}`, {
+  await api.delete(`/notes/${id}`, {
     headers: { Authorization: `Bearer ${TOKEN}` },
   });
 };
