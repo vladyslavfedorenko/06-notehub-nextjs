@@ -1,7 +1,9 @@
 "use client";
+
+import ReactPaginate from "react-paginate";
 import styles from "./Pagination.module.css";
 
-interface PaginationProps {
+export interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -12,19 +14,19 @@ export default function Pagination({
   totalPages,
   onPageChange,
 }: PaginationProps) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
   return (
     <div className={styles.pagination}>
-      {pages.map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={page === currentPage ? styles.active : ""}
-        >
-          {page}
-        </button>
-      ))}
+      <ReactPaginate
+        pageCount={totalPages}
+        forcePage={currentPage - 1}
+        onPageChange={(selected) => onPageChange(selected.selected + 1)}
+        marginPagesDisplayed={1}
+        pageRangeDisplayed={3}
+        containerClassName={styles.pageContainer}
+        activeClassName={styles.active}
+        previousLabel="<"
+        nextLabel=">"
+      />
     </div>
   );
 }

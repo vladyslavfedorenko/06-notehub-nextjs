@@ -3,4 +3,6 @@ export interface Note {
   title: string;
   content: string;
   createdAt: string;
+  updatedAt: string;
+  tag: string;
 }

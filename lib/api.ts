@@ -1,39 +1,63 @@
 import axios from "axios";
 import { Note } from "@/types/note";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://notehub-public.goit.study/api";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
-const instance = axios.create({
-  baseURL: API_URL,
-  headers: {
-    Authorization: `Bearer ${TOKEN}`,
-  },
-});
+export interface NotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
 
-// === Get all notes ===
-export const fetchNotes = async (): Promise<Note[]> => {
-  const { data } = await instance.get("/notes");
-  return data;
+/**
+ * Получение списка заметок с пагинацией и поиском
+ */
+export const fetchNotes = async ({
+  page = 1,
+  q = "",
+}: {
+  page?: number;
+  q?: string;
+}): Promise<NotesResponse> => {
+  // ✅ Передаем q только если он непустой
+  const params: Record<string, string | number> = { page };
+  if (q && q.trim() !== "") params.q = q.trim();
+
+  const res = await axios.get<NotesResponse>(`${BASE_URL}/notes`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+    params,
+  });
+
+  return res.data;
 };
 
-// === Get one note by ID ===
+/**
+ * Получение одной заметки по id
+ */
 export const fetchNoteById = async (id: string): Promise<Note> => {
-  const { data } = await instance.get(`/notes/${id}`);
-  return data;
+  const res = await axios.get<Note>(`${BASE_URL}/notes/${id}`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  });
+  return res.data;
 };
 
-// === Create a new note ===
-export const createNote = async (note: {
-  title: string;
-  content: string;
-}): Promise<Note> => {
-  const { data } = await instance.post("/notes", note);
-  return data;
+/**
+ * Создание новой заметки
+ */
+export const createNote = async (
+  note: Pick<Note, "title" | "content" | "tag">
+): Promise<Note> => {
+  const res = await axios.post<Note>(`${BASE_URL}/notes`, note, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  });
+  return res.data;
 };
 
-// === Delete a note ===
+/**
+ * Удаление заметки
+ */
 export const deleteNote = async (id: string): Promise<void> => {
-  await instance.delete(`/notes/${id}`);
+  await axios.delete(`${BASE_URL}/notes/${id}`, {
+    headers: { Authorization: `Bearer ${TOKEN}` },
+  });
 };
