@@ -1,66 +1,57 @@
 import axios from "axios";
 import { Note } from "@/types/note";
 
-const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+// 🔐 Подтягиваем токен и базовый URL из .env.local
+const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
+
+// ⚠️ Если токена нет — предупреди в консоли
+if (!token) {
+  console.warn("⚠️ NEXT_PUBLIC_NOTEHUB_TOKEN is missing!");
+}
+
+// Создаём axios-инстанс
+export const instance = axios.create({
+  baseURL,
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
 
 export interface NotesResponse {
   notes: Note[];
-  totalPages: number;
+  total: number;
+  page: number;
+  limit: number;
 }
 
-// ✅ создаём axios-инстанс без baseURL, чтобы использовать относительные пути
-const api = axios.create({
-  baseURL: "/api", // теперь запросы идут на тот же домен (через Next.js API routes)
-});
-
-/**
- * Получение списка заметок с пагинацией и поиском
- */
-export const fetchNotes = async ({
-  page = 1,
-  q = "",
-}: {
-  page?: number;
-  q?: string;
-}): Promise<NotesResponse> => {
-  const params: Record<string, string | number> = { page };
-  if (q && q.trim() !== "") params.q = q.trim();
-
-  const res = await api.get<NotesResponse>("/notes", {
-    headers: { Authorization: `Bearer ${TOKEN}` },
-    params,
+// 📥 Получить все заметки
+export const getNotes = async (
+  search: string,
+  page: number
+): Promise<NotesResponse> => {
+  const { data } = await instance.get<NotesResponse>("/notes", {
+    params: { search, page },
   });
-
-  return res.data;
+  return data;
 };
 
-/**
- * Получение одной заметки по id
- */
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const res = await api.get<Note>(`/notes/${id}`, {
-    headers: { Authorization: `Bearer ${TOKEN}` },
-  });
-  return res.data;
-};
-
-/**
- * Создание новой заметки
- */
+// ➕ Создать новую заметку
 export const createNote = async (
   note: Pick<Note, "title" | "content" | "tag">
 ): Promise<Note> => {
-  const res = await api.post<Note>("/notes", note, {
-    headers: { Authorization: `Bearer ${TOKEN}` },
-  });
-  return res.data;
+  const { data } = await instance.post<Note>("/notes", note);
+  return data;
 };
 
-/**
- * Удаление заметки
- */
-export const deleteNote = async (id: string): Promise<void> => {
-  await api.delete(`/notes/${id}`, {
-    headers: { Authorization: `Bearer ${TOKEN}` },
-  });
+// ❌ Удалить заметку
+export const deleteNote = async (id: string): Promise<Note> => {
+  const { data } = await instance.delete<Note>(`/notes/${id}`);
+  return data;
+};
+
+// 🔍 Получить заметку по id
+export const getNoteById = async (id: string): Promise<Note> => {
+  const { data } = await instance.get<Note>(`/notes/${id}`);
+  return data;
 };

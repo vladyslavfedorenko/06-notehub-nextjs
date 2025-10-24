@@ -2,49 +2,48 @@
 
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote } from "@/lib/api";
 
-export interface NoteFormProps {
-  onSubmit: (title: string, content: string, tag: string) => void;
-  onCancel?: () => void;
+interface NoteFormProps {
+  onSuccess?: () => void;
 }
 
-interface FormValues {
-  title: string;
-  content: string;
-  tag: string;
-}
+export const NoteForm: React.FC<NoteFormProps> = ({ onSuccess }) => {
+  const queryClient = useQueryClient();
 
-const NoteForm = ({ onSubmit, onCancel }: NoteFormProps) => {
-  const initialValues: FormValues = { title: "", content: "", tag: "" };
-
-  const validationSchema = Yup.object({
-    title: Yup.string()
-      .required("Title is required")
-      .max(100, "Max 100 characters"),
-    content: Yup.string()
-      .required("Content is required")
-      .max(500, "Max 500 characters"),
-    tag: Yup.string().required("Tag is required"),
+  const mutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      onSuccess?.();
+    },
   });
 
   return (
     <Formik
-      initialValues={initialValues}
-      validationSchema={validationSchema}
+      initialValues={{ title: "", content: "", tag: "Todo" }}
+      validationSchema={Yup.object({
+        title: Yup.string().min(3).max(50).required("Title is required"),
+        content: Yup.string().optional(),
+        tag: Yup.string().oneOf([
+          "Todo",
+          "Work",
+          "Personal",
+          "Meeting",
+          "Shopping",
+        ]),
+      })}
       onSubmit={(values, { resetForm }) => {
-        onSubmit(values.title, values.content, values.tag);
+        mutation.mutate(values);
         resetForm();
       }}
     >
       {({ isSubmitting }) => (
-        <Form className="flex flex-col gap-3 border rounded p-4 bg-gray-50">
+        <Form className="flex flex-col gap-3 p-4 w-80">
           <div>
-            <label className="font-semibold">Title</label>
-            <Field
-              name="title"
-              placeholder="Enter title"
-              className="border p-2 w-full rounded"
-            />
+            <label className="block mb-1">Title</label>
+            <Field name="title" className="border p-2 rounded w-full" />
             <ErrorMessage
               name="title"
               component="div"
@@ -53,56 +52,34 @@ const NoteForm = ({ onSubmit, onCancel }: NoteFormProps) => {
           </div>
 
           <div>
-            <label className="font-semibold">Content</label>
+            <label className="block mb-1">Content</label>
             <Field
               as="textarea"
               name="content"
-              placeholder="Enter content"
-              className="border p-2 w-full rounded h-24"
-            />
-            <ErrorMessage
-              name="content"
-              component="div"
-              className="text-red-500 text-sm"
+              className="border p-2 rounded w-full"
             />
           </div>
 
           <div>
-            <label className="font-semibold">Tag</label>
-            <Field
-              name="tag"
-              placeholder="Enter tag"
-              className="border p-2 w-full rounded"
-            />
-            <ErrorMessage
-              name="tag"
-              component="div"
-              className="text-red-500 text-sm"
-            />
+            <label className="block mb-1">Tag</label>
+            <Field as="select" name="tag" className="border p-2 rounded w-full">
+              <option value="Todo">Todo</option>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Meeting">Meeting</option>
+              <option value="Shopping">Shopping</option>
+            </Field>
           </div>
 
-          <div className="flex gap-3 mt-3">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Add Note
-            </button>
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                className="border px-4 py-2 rounded hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-            )}
-          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="bg-green-500 text-white rounded py-2 mt-2 disabled:opacity-50"
+          >
+            {isSubmitting ? "Saving..." : "Create"}
+          </button>
         </Form>
       )}
     </Formik>
   );
 };
-
-export default NoteForm;
