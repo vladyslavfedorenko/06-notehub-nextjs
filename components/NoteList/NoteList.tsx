@@ -9,6 +9,11 @@ interface NoteListProps {
   notes: Note[];
 }
 
+/**
+ * Компонент списку нотаток.
+ * Завжди відображає title, content та tag.
+ * Видалення реалізовано через useMutation.
+ */
 export function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
 
@@ -35,11 +40,11 @@ export function NoteList({ notes }: NoteListProps) {
             <span className="text-sm text-gray-500">#{note.tag}</span>
           </div>
 
-          {note.content && (
-            <p className="text-gray-700 text-sm mb-3 line-clamp-3">
-              {note.content}
-            </p>
-          )}
+          <p className="text-gray-700 text-sm mb-3 line-clamp-3">
+            {note.content && note.content.trim().length > 0
+              ? note.content
+              : "Без змісту"}
+          </p>
 
           <div className="flex justify-end gap-3">
             <Link
