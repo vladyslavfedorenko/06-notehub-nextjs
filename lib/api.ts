@@ -19,7 +19,6 @@ export const getNotes = async (
 ): Promise<NotesResponse> => {
   const params: Record<string, string | number> = { page };
   if (query.trim()) params.query = query.trim();
-
   const { data } = await api.get<NotesResponse>("/notes", { params });
   return data;
 };
