@@ -1,24 +1,35 @@
 "use client";
 
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+/**
+ * Модальне вікно з підтримкою:
+ *  - React Portal (рендер за межами дерева React)
+ *  - закриття по ESC
+ *  - закриття по кліку на overlay
+ *  - вимкнення прокручування фону
+ */
+export function Modal({ isOpen, onClose, children }: ModalProps) {
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
-    document.addEventListener("keydown", handleEsc);
-    document.body.style.overflow = isOpen ? "hidden" : "";
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
     return () => {
-      document.removeEventListener("keydown", handleEsc);
-      document.body.style.overflow = "";
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "auto";
     };
   }, [isOpen, onClose]);
 
@@ -26,11 +37,11 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg p-6 shadow-lg"
+        className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
@@ -38,4 +49,4 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     </div>,
     document.body
   );
-};
+}

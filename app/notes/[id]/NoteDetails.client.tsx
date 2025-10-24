@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getNoteById } from "@/lib/api";
 import type { Note } from "@/types/note";
 
-// 👇 объявляем интерфейс пропсов
 interface NoteDetailsClientProps {
   noteId: string;
 }
@@ -17,6 +16,7 @@ export default function NoteDetailsClient({ noteId }: NoteDetailsClientProps) {
   } = useQuery<Note>({
     queryKey: ["note", noteId],
     queryFn: () => getNoteById(noteId),
+    refetchOnMount: false, // 👈 виправлено згідно вимог
   });
 
   if (isLoading) return <p>Завантаження...</p>;

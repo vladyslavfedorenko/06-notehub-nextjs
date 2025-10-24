@@ -7,24 +7,21 @@ import { getNoteById } from "@/lib/api";
 import NoteDetailsClient from "./NoteDetails.client";
 
 interface PageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
-// 🚀 Серверный компонент — подготавливает данные для конкретной заметки
 export default async function NoteDetailsPage({ params }: PageProps) {
+  const { id } = await params; // 👈 очікуємо Promise
   const queryClient = new QueryClient();
 
-  // Предварительно подгружаем данные заметки
   await queryClient.prefetchQuery({
-    queryKey: ["note", params.id],
-    queryFn: () => getNoteById(params.id),
+    queryKey: ["note", id],
+    queryFn: () => getNoteById(id),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient noteId={params.id} />
+      <NoteDetailsClient noteId={id} />
     </HydrationBoundary>
   );
 }
