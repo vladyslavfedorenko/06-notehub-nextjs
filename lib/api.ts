@@ -1,17 +1,10 @@
 import axios from "axios";
-import { Note } from "@/types/note";
+import type { Note } from "@/types/note";
 
-const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-const baseURL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!token) {
-  console.warn("⚠️ NEXT_PUBLIC_NOTEHUB_TOKEN is missing!");
-}
-
-export const instance = axios.create({
-  baseURL,
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
   },
 });
 
@@ -20,33 +13,30 @@ export interface NotesResponse {
   totalPages: number;
 }
 
-// 📥 Отримати список нотаток
 export const getNotes = async (
-  search: string,
-  page: number
+  page: number,
+  query: string
 ): Promise<NotesResponse> => {
-  const { data } = await instance.get<NotesResponse>("/notes", {
-    params: { search, page },
-  });
+  const params: Record<string, string | number> = { page };
+  if (query.trim()) params.query = query.trim();
+
+  const { data } = await api.get<NotesResponse>("/notes", { params });
   return data;
 };
 
-// ➕ Створити нову нотатку
-export const createNote = async (
-  note: Pick<Note, "title" | "content" | "tag">
-): Promise<Note> => {
-  const { data } = await instance.post<Note>("/notes", note);
-  return data;
-};
-
-// ❌ Видалити нотатку
-export const deleteNote = async (id: string): Promise<Note> => {
-  const { data } = await instance.delete<Note>(`/notes/${id}`);
-  return data;
-};
-
-// 🔍 Отримати нотатку за ID
 export const getNoteById = async (id: string): Promise<Note> => {
-  const { data } = await instance.get<Note>(`/notes/${id}`);
+  const { data } = await api.get<Note>(`/notes/${id}`);
+  return data;
+};
+
+export const createNote = async (
+  note: Omit<Note, "id" | "createdAt" | "updatedAt">
+): Promise<Note> => {
+  const { data } = await api.post<Note>("/notes", note);
+  return data;
+};
+
+export const deleteNote = async (id: string): Promise<Note> => {
+  const { data } = await api.delete<Note>(`/notes/${id}`);
   return data;
 };

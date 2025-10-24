@@ -19,9 +19,9 @@ export default function NotesClient() {
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["notes", debouncedSearch, page],
-    queryFn: () => getNotes(debouncedSearch, page),
-    placeholderData: (prev) => prev, // 👈 keepPreviousData
+    queryKey: ["notes", page, debouncedSearch],
+    queryFn: () => getNotes(page, debouncedSearch),
+    placeholderData: (prev) => prev,
   });
 
   const createMutation = useMutation({
@@ -42,7 +42,7 @@ export default function NotesClient() {
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1); // 👈 reset page on search change
+    setPage(1);
   };
 
   if (isLoading) return <p>Завантаження...</p>;
@@ -74,7 +74,7 @@ export default function NotesClient() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <NoteForm
           onSubmit={(values) => createMutation.mutate(values)}
-          onCancel={() => setIsModalOpen(false)} // 👈 кнопка "Скасувати"
+          onCancel={() => setIsModalOpen(false)}
         />
       </Modal>
     </div>
