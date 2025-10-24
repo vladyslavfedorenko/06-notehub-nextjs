@@ -15,10 +15,10 @@ export interface NotesResponse {
 
 export const getNotes = async (
   page: number,
-  query: string
+  search: string
 ): Promise<NotesResponse> => {
   const params: Record<string, string | number> = { page };
-  if (query.trim()) params.query = query.trim();
+  if (search.trim()) params.search = search.trim();
   const { data } = await api.get<NotesResponse>("/notes", { params });
   return data;
 };

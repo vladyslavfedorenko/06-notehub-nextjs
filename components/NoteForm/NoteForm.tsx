@@ -7,24 +7,18 @@ import { createNote } from "@/lib/api";
 import type { Note } from "@/types/note";
 
 interface NoteFormProps {
-  onSubmit?: (note: Pick<Note, "title" | "content" | "tag">) => void;
-  onCancel?: () => void;
+  onCancel: () => void;
 }
 
-/**
- * Компонент форми створення нотатки.
- * Використовує Formik + Yup для валідації.
- * Інтегрований з React Query для мутацій та інвалідації кешу.
- */
-export function NoteForm({ onSubmit, onCancel }: NoteFormProps) {
+export function NoteForm({ onCancel }: NoteFormProps) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: (values: Pick<Note, "title" | "content" | "tag">) =>
       createNote(values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] as const });
-      onCancel?.();
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      onCancel();
     },
   });
 
@@ -40,24 +34,16 @@ export function NoteForm({ onSubmit, onCancel }: NoteFormProps) {
           .min(3, "Мінімум 3 символи")
           .max(50, "Максимум 50 символів")
           .required("Обов’язкове поле"),
-        content: Yup.string().optional(),
-        tag: Yup.string().oneOf([
-          "Todo",
-          "Work",
-          "Personal",
-          "Meeting",
-          "Shopping",
-        ]),
+        content: Yup.string().max(500, "Максимум 500 символів").optional(),
+        tag: Yup.string()
+          .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
+          .required("Обов’язкове поле"),
       })}
-      onSubmit={(values, { resetForm }) => {
-        mutation.mutate(values);
-        onSubmit?.(values);
-        resetForm();
-      }}
+      onSubmit={(values) => mutation.mutate(values)}
     >
       <Form className="flex flex-col gap-3">
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="title">
+          <label htmlFor="title" className="block text-sm font-medium mb-1">
             Заголовок
           </label>
           <Field
@@ -74,8 +60,8 @@ export function NoteForm({ onSubmit, onCancel }: NoteFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="content">
-            Зміст (необов’язково)
+          <label htmlFor="content" className="block text-sm font-medium mb-1">
+            Зміст
           </label>
           <Field
             as="textarea"
@@ -84,10 +70,15 @@ export function NoteForm({ onSubmit, onCancel }: NoteFormProps) {
             placeholder="Додайте опис"
             className="border border-gray-300 rounded w-full p-2 h-24"
           />
+          <ErrorMessage
+            name="content"
+            component="div"
+            className="text-red-500 text-sm mt-1"
+          />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="tag">
+          <label htmlFor="tag" className="block text-sm font-medium mb-1">
             Тег
           </label>
           <Field
@@ -102,6 +93,11 @@ export function NoteForm({ onSubmit, onCancel }: NoteFormProps) {
             <option value="Meeting">Meeting</option>
             <option value="Shopping">Shopping</option>
           </Field>
+          <ErrorMessage
+            name="tag"
+            component="div"
+            className="text-red-500 text-sm mt-1"
+          />
         </div>
 
         <div className="flex justify-end gap-3 mt-3">

@@ -1,18 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteNote } from "@/lib/api";
 import type { Note } from "@/types/note";
 
 interface NoteListProps {
   notes: Note[];
-  onDelete: (id: string) => void;
 }
 
-/**
- * Компонент списку нотаток.
- * Відображає назву, тег, короткий зміст та кнопки дій.
- */
-export function NoteList({ notes, onDelete }: NoteListProps) {
+export function NoteList({ notes }: NoteListProps) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (id: string) => deleteNote(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    },
+  });
+
   if (!notes?.length) {
     return <p className="text-gray-500">Немає нотаток 😔</p>;
   }
@@ -43,7 +49,7 @@ export function NoteList({ notes, onDelete }: NoteListProps) {
               View details
             </Link>
             <button
-              onClick={() => onDelete(note.id)}
+              onClick={() => mutation.mutate(note.id)}
               className="text-red-600 hover:underline text-sm"
             >
               Delete
