@@ -1,31 +1,30 @@
 import {
-  QueryClient,
   dehydrate,
   HydrationBoundary,
+  QueryClient,
 } from "@tanstack/react-query";
-import { fetchNoteById } from "@/lib/api";
+import { getNoteById } from "@/lib/api";
 import NoteDetailsClient from "./NoteDetails.client";
 
 interface PageProps {
-  // ✅ саме Promise<{ id: string }>, як вимагає перевірка
-  params: Promise<{ id: string }>;
+  params: {
+    id: string;
+  };
 }
 
+// 🚀 Серверный компонент — подготавливает данные для конкретной заметки
 export default async function NoteDetailsPage({ params }: PageProps) {
-  // ✅ очікуємо params у тілі функції
-  const { id } = await params;
-
   const queryClient = new QueryClient();
 
-  // ✅ префетч з коректним queryKey/queryFn
+  // Предварительно подгружаем данные заметки
   await queryClient.prefetchQuery({
-    queryKey: ["note", id],
-    queryFn: () => fetchNoteById(id),
+    queryKey: ["note", params.id],
+    queryFn: () => getNoteById(params.id),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient id={id} />
+      <NoteDetailsClient noteId={params.id} />
     </HydrationBoundary>
   );
 }
