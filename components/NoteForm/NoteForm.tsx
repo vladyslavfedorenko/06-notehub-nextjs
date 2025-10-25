@@ -5,11 +5,16 @@ import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "@/lib/api";
 import type { Note } from "@/types/note";
+import styles from "./NoteForm.module.css";
 
 interface NoteFormProps {
   onCancel: () => void;
 }
 
+/**
+ * Форма створення нотатки
+ * Використовує Formik + Yup + React Query.
+ */
 export function NoteForm({ onCancel }: NoteFormProps) {
   const queryClient = useQueryClient();
 
@@ -34,33 +39,31 @@ export function NoteForm({ onCancel }: NoteFormProps) {
           .min(3, "Мінімум 3 символи")
           .max(50, "Максимум 50 символів")
           .required("Обов’язкове поле"),
-        content: Yup.string().max(500, "Максимум 500 символів").optional(),
+        content: Yup.string()
+          .max(500, "Максимум 500 символів")
+          .required("Обов’язкове поле"),
         tag: Yup.string()
           .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
           .required("Обов’язкове поле"),
       })}
       onSubmit={(values) => mutation.mutate(values)}
     >
-      <Form className="flex flex-col gap-3">
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">
+      <Form className={styles.form}>
+        <div className={styles.field}>
+          <label htmlFor="title" className={styles.label}>
             Заголовок
           </label>
           <Field
             id="title"
             name="title"
             placeholder="Введіть назву нотатки"
-            className="border border-gray-300 rounded w-full p-2"
+            className={styles.input}
           />
-          <ErrorMessage
-            name="title"
-            component="div"
-            className="text-red-500 text-sm mt-1"
-          />
+          <ErrorMessage name="title" component="div" className={styles.error} />
         </div>
 
-        <div>
-          <label htmlFor="content" className="block text-sm font-medium mb-1">
+        <div className={styles.field}>
+          <label htmlFor="content" className={styles.label}>
             Зміст
           </label>
           <Field
@@ -68,50 +71,34 @@ export function NoteForm({ onCancel }: NoteFormProps) {
             id="content"
             name="content"
             placeholder="Додайте опис"
-            className="border border-gray-300 rounded w-full p-2 h-24"
+            className={styles.textarea}
           />
           <ErrorMessage
             name="content"
             component="div"
-            className="text-red-500 text-sm mt-1"
+            className={styles.error}
           />
         </div>
 
-        <div>
-          <label htmlFor="tag" className="block text-sm font-medium mb-1">
+        <div className={styles.field}>
+          <label htmlFor="tag" className={styles.label}>
             Тег
           </label>
-          <Field
-            as="select"
-            id="tag"
-            name="tag"
-            className="border border-gray-300 rounded w-full p-2"
-          >
+          <Field as="select" id="tag" name="tag" className={styles.select}>
             <option value="Todo">Todo</option>
             <option value="Work">Work</option>
             <option value="Personal">Personal</option>
             <option value="Meeting">Meeting</option>
             <option value="Shopping">Shopping</option>
           </Field>
-          <ErrorMessage
-            name="tag"
-            component="div"
-            className="text-red-500 text-sm mt-1"
-          />
+          <ErrorMessage name="tag" component="div" className={styles.error} />
         </div>
 
-        <div className="flex justify-end gap-3 mt-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-400 rounded hover:bg-gray-100"
-          >
+        <div className={styles.buttons}>
+          <button type="button" onClick={onCancel} className={styles.cancelBtn}>
             Скасувати
           </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
+          <button type="submit" className={styles.submitBtn}>
             Створити
           </button>
         </div>

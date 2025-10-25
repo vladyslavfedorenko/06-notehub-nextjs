@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteNote } from "@/lib/api";
 import type { Note } from "@/types/note";
+import styles from "./NoteList.module.css";
 
 interface NoteListProps {
   notes: Note[];
@@ -11,8 +12,8 @@ interface NoteListProps {
 
 /**
  * Компонент списку нотаток.
- * Завжди відображає title, content та tag.
- * Видалення реалізовано через useMutation.
+ * Завжди відображає title, content і tag.
+ * Видалення реалізовано через React Query.
  */
 export function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
@@ -25,37 +26,30 @@ export function NoteList({ notes }: NoteListProps) {
   });
 
   if (!notes?.length) {
-    return <p className="text-gray-500">Немає нотаток 😔</p>;
+    return <p className={styles.empty}>Немає нотаток 😔</p>;
   }
 
   return (
-    <ul className="grid gap-4">
+    <ul className={styles.list}>
       {notes.map((note) => (
-        <li
-          key={note.id}
-          className="border border-gray-300 rounded-lg p-4 shadow-sm hover:shadow-md transition"
-        >
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold">{note.title}</h3>
-            <span className="text-sm text-gray-500">#{note.tag}</span>
+        <li key={note.id} className={styles.item}>
+          <div className={styles.header}>
+            <h3 className={styles.title}>{note.title}</h3>
+            <span className={styles.tag}>#{note.tag}</span>
           </div>
 
-          <p className="text-gray-700 text-sm mb-3 line-clamp-3">
-            {note.content && note.content.trim().length > 0
-              ? note.content
-              : "Без змісту"}
+          {/* ✅ контент відображається завжди */}
+          <p className={styles.content}>
+            {note.content?.trim() ? note.content : "Без змісту"}
           </p>
 
-          <div className="flex justify-end gap-3">
-            <Link
-              href={`/notes/${note.id}`}
-              className="text-blue-600 hover:underline text-sm"
-            >
+          <div className={styles.actions}>
+            <Link href={`/notes/${note.id}`} className={styles.link}>
               View details
             </Link>
             <button
               onClick={() => mutation.mutate(note.id)}
-              className="text-red-600 hover:underline text-sm"
+              className={styles.delete}
             >
               Delete
             </button>

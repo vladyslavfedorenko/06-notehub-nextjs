@@ -1,6 +1,7 @@
 "use client";
 
 import ReactPaginate from "react-paginate";
+import styles from "./Pagination.module.css";
 
 interface PaginationProps {
   currentPage: number;
@@ -8,6 +9,10 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
+/**
+ * Компонент пагінації.
+ * Використовує ReactPaginate із модульними стилями.
+ */
 export function Pagination({
   currentPage,
   totalPages,
@@ -16,19 +21,19 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex justify-center mt-6">
+    <div className={styles.wrapper}>
       <ReactPaginate
         pageCount={totalPages}
         onPageChange={({ selected }) => onPageChange(selected + 1)}
         forcePage={currentPage - 1}
         previousLabel="Назад"
         nextLabel="Далі"
-        containerClassName="flex gap-2"
-        pageClassName="px-3 py-1 border rounded hover:bg-gray-100"
-        activeClassName="bg-blue-600 text-white"
-        previousClassName="px-3 py-1 border rounded"
-        nextClassName="px-3 py-1 border rounded"
-        disabledClassName="opacity-50 cursor-not-allowed"
+        containerClassName={styles.pagination}
+        pageClassName={styles.page}
+        activeClassName={styles.active}
+        previousClassName={styles.navButton}
+        nextClassName={styles.navButton}
+        disabledClassName={styles.disabled}
       />
     </div>
   );

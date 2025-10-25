@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect } from "react";
 import { createPortal } from "react-dom";
+import styles from "./Modal.module.css";
 
 interface ModalProps {
   isOpen: boolean;
@@ -36,14 +37,11 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
   if (!isOpen) return null;
 
   return createPortal(
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose}>
+          ✕
+        </button>
         {children}
       </div>
     </div>,
