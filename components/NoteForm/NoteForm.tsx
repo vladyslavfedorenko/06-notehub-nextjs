@@ -39,9 +39,8 @@ export function NoteForm({ onCancel }: NoteFormProps) {
           .min(3, "Мінімум 3 символи")
           .max(50, "Максимум 50 символів")
           .required("Обов’язкове поле"),
-        content: Yup.string()
-          .max(500, "Максимум 500 символів")
-          .required("Обов’язкове поле"),
+        // ✅ исправлено: content теперь необязательное
+        content: Yup.string().max(500, "Максимум 500 символів"),
         tag: Yup.string()
           .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
           .required("Обов’язкове поле"),
