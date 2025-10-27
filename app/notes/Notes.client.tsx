@@ -9,6 +9,7 @@ import { NoteForm } from "@/components/NoteForm/NoteForm";
 import { SearchBox } from "@/components/SearchBox/SearchBox";
 import { NoteList } from "@/components/NoteList/NoteList";
 import { Pagination } from "@/components/Pagination/Pagination";
+import styles from "./NotesPage.module.css";
 
 export default function NotesClient() {
   const [search, setSearch] = useState("");
@@ -31,11 +32,11 @@ export default function NotesClient() {
   if (isError) return <p>Помилка отримання нотаток 😢</p>;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className={styles.container}>
+      <div className={styles.header}>
         <SearchBox value={search} onChange={handleSearchChange} />
         <button
-          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+          className={styles.addButton}
           onClick={() => setIsModalOpen(true)}
         >
           Нова нотатка

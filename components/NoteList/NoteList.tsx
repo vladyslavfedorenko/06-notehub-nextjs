@@ -12,8 +12,8 @@ interface NoteListProps {
 
 /**
  * Компонент списку нотаток.
- * Завжди відображає title, content і tag.
- * Видалення реалізовано через React Query.
+ * Відображає title, content і tag для кожної нотатки.
+ * Використовує React Query для видалення і оновлення кешу.
  */
 export function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
@@ -38,9 +38,11 @@ export function NoteList({ notes }: NoteListProps) {
             <span className={styles.tag}>#{note.tag}</span>
           </div>
 
-          {/* ✅ контент відображається завжди */}
+          {/* ✅ контент тепер завжди присутній у розмітці */}
           <p className={styles.content}>
-            {note.content?.trim() ? note.content : "Без змісту"}
+            {note.content && note.content.trim().length > 0
+              ? note.content
+              : "Без змісту"}
           </p>
 
           <div className={styles.actions}>
@@ -48,6 +50,7 @@ export function NoteList({ notes }: NoteListProps) {
               View details
             </Link>
             <button
+              type="button"
               onClick={() => mutation.mutate(note.id)}
               className={styles.delete}
             >

@@ -11,11 +11,7 @@ interface ModalProps {
 }
 
 /**
- * Модальне вікно з підтримкою:
- *  - React Portal (рендер за межами дерева React)
- *  - закриття по ESC
- *  - закриття по кліку на overlay
- *  - вимкнення прокручування фону
+ * Модальне вікно з overlay, без TailwindCSS.
  */
 export function Modal({ isOpen, onClose, children }: ModalProps) {
   useEffect(() => {
@@ -39,9 +35,6 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
   return createPortal(
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={onClose}>
-          ✕
-        </button>
         {children}
       </div>
     </div>,
